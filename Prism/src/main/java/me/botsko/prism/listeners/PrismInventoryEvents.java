@@ -265,12 +265,22 @@ public class PrismInventoryEvents implements Listener {
 
                         }
                     } else {
-                        if ((slotItem.getType() == Material.AIR || slotItem.equals(heldItem))
-                                && slotItem.getAmount() < slotItem.getType().getMaxStackSize()) {
-                            RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, slotItem, 1, slot, null,
+                        if (!slotItem.getType().equals(Material.AIR) && !slotItem.getType().equals(heldItem.getType())) {
+                            // its a switch.
+                            RecordingQueue.addToQueue(ActionFactory.createItemStack(REMOVE, slotItem, slotItem.getAmount(), slot, null,
                                     containerLoc, player));
                             Prism.debug("ACTION: " + event.getAction().name());
 
+                            RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, heldItem, heldItem.getAmount(), slot, null,
+                                    containerLoc, player));
+                            Prism.debug("ACTION: " + event.getAction().name());
+                        }
+
+                        if (slotItem.getType() == Material.AIR ||
+                                (slotItem.getType().equals(heldItem.getType()) && slotItem.getAmount() < slotItem.getType().getMaxStackSize())) {
+                            RecordingQueue.addToQueue(ActionFactory.createItemStack(INSERT, heldItem, 1, slot, null,
+                                    containerLoc, player));
+                            Prism.debug("ACTION: " + event.getAction().name());
                         }
                     }
                 }
@@ -308,7 +318,7 @@ public class PrismInventoryEvents implements Listener {
                     ItemStack is = contents[i];
 
                     int size = 0;
-                    if (is != null && (is.getType() != Material.AIR || is.equals(heldItem))) {
+                    if (is != null && (is.getType() != Material.AIR || is.getType().equals(heldItem.getType()))) {
                         size += is.getAmount();
                     }
                     amount = recordDeductTransfer(REMOVE,size,amount,heldItem,containerLoc,i,player,event);
